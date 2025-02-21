@@ -12,14 +12,12 @@ def check(interaction: Interaction):
         if interaction.response.is_done():
             print("\n")
             print(
-                f"El comando '{interaction.data['name']}' ha sido enviado a '{interaction.guild.name}' por '\
-                  {interaction.user.name}' a la hora '{interaction.created_at}'"
+                f"El comando '{interaction.data['name']}' ha sido enviado a '{interaction.guild.name}' por '{interaction.user.name}' a la hora '{interaction.created_at}'"
             )
     except Exception:
         print("\n\n")
         traceback.print_exc()
         print("\n\n")
         print(
-            f"Error al enviar el comando '{interaction.data['name']}' a '{interaction.guild.name}' por '\
-              {interaction.user.name}' a la hora '{interaction.created_at}'"
+            f"Error al enviar el comando '{interaction.data['name']}' a '{interaction.guild.name}' por '{interaction.user.name}' a la hora '{interaction.created_at}'"
         )
