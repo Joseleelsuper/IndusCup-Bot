@@ -7,6 +7,20 @@ import uuid
 import bcrypt
 
 
+async def log_command(interaction: Interaction, message: str):
+    try:
+        root_path = Path(__file__).resolve().parent.parent.parent
+        util_file = os.path.join(root_path, "db", "util", "log_channel.json")
+        with open(util_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        log_channel_id = int(data["log_channel"])
+        log_channel = interaction.guild.get_channel(log_channel_id)
+        if log_channel:
+            await log_channel.send(message)
+    except Exception:
+        pass
+
+
 async def create_team(
     interaction: Interaction, team_name: str, members_array: list[Member]
 ):
@@ -38,6 +52,7 @@ async def create_team(
             await interaction.followup.send(
                 f"Ya existe un rol con el nombre {team_name}", ephemeral=True
             )
+            await log_command(interaction, f"create_team command by {interaction.user} failed: role already exists for team {team_name}")
             raise Exception(f"Ya existe un rol con el nombre {team_name}")
         # Comprobar que el usuario no pertenece a un equipo
         for member in members_array:
@@ -47,6 +62,7 @@ async def create_team(
                         f"El usuario {member.name} ya pertenece a un equipo",
                         ephemeral=True,
                     )
+                    await log_command(interaction, f"create_team command by {interaction.user} failed: {member.name} already in a team")
                     raise Exception(
                         f"El usuario {member.name} ya pertenece a un equipo"
                     )
@@ -109,6 +125,7 @@ async def create_team(
         await interaction.followup.send(
             f"Equipo {team_name} creado con éxito.", ephemeral=True
         )
+        await log_command(interaction, f"create_team command by {interaction.user} succeeded: created team {team_name}")
     except Exception:
         if role:
             await role.delete()
@@ -118,6 +135,7 @@ async def create_team(
             await text_channel.delete()
         if voice_channel:
             await voice_channel.delete()
+        await log_command(interaction, f"create_team command by {interaction.user} failed: error occurred while creating team {team_name}")
     finally:
         del password_base
         del password
