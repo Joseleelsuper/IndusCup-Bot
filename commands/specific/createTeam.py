@@ -24,7 +24,6 @@ async def create_team(
         team_name (str): Nombre del equipo.
         members_array (list[Member]): Lista de miembros del equipo. Default to None.
     """
-    print("Creating team")
     guild = interaction.guild
 
     role = None
@@ -33,7 +32,6 @@ async def create_team(
     voice_channel = None
 
     try:
-        print("Checking if team exists")
         # Comprobar si ya existe un rol con el mismo nombre
         existing_role = discord.utils.get(guild.roles, name="Team_" + team_name)
         if existing_role:
@@ -41,20 +39,18 @@ async def create_team(
                 f"Ya existe un rol con el nombre {team_name}", ephemeral=True
             )
             raise Exception(f"Ya existe un rol con el nombre {team_name}")
-
-        print("Checking if member is in a team")
         # Comprobar que el usuario no pertenece a un equipo
         for member in members_array:
             for role in member.roles:
                 if role.name.startswith("Team_"):
                     await interaction.followup.send(
-                        f"El usuario {member.name} ya pertenece a un equipo", ephemeral=True
+                        f"El usuario {member.name} ya pertenece a un equipo",
+                        ephemeral=True,
                     )
                     raise Exception(
                         f"El usuario {member.name} ya pertenece a un equipo"
                     )
 
-        print("Creating role")
         # Crear rol con permisos para ver canales
         role = await guild.create_role(name="Team_" + team_name)
         overwrites = {
@@ -62,7 +58,6 @@ async def create_team(
             role: discord.PermissionOverwrite(view_channel=True),
         }
 
-        print("Creating category and channels")
         # Crear categoría y canales
         category = await guild.create_category(
             "Team_" + team_name, overwrites=overwrites
@@ -74,16 +69,16 @@ async def create_team(
             "Voz", category=category, overwrites=overwrites, user_limit=6, bitrate=96000
         )
 
-        print("Assigning role to members")
         # Asignar el rol a los miembros
         for member in members_array:
             await member.add_roles(role)
 
         # Crear una contraseña aleatoria de 8 caracteres mayúsculas, minúsculas, números y especiales.
         password_base = os.urandom(8).hex()
-        password = bcrypt.hashpw(password_base.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        password = bcrypt.hashpw(
+            password_base.encode("utf-8"), bcrypt.gensalt()
+        ).decode("utf-8")
 
-        print("Saving team data")
         # Preparar datos del equipo en formato JSON
         team_data = {
             "id": str(uuid.uuid4()),
@@ -91,10 +86,9 @@ async def create_team(
             "members": [
                 {"id": str(member.id), "name": member.name} for member in members_array
             ],
-            "password": password
+            "password": password,
         }
 
-        print("Saving JSON")
         # Guardar el JSON en /db/teams/{team_name}.json
         root_path = Path(__file__).resolve().parent.parent.parent
         file_dir = root_path / "db" / "teams"
@@ -104,7 +98,9 @@ async def create_team(
             json.dump(team_data, f, ensure_ascii=False, indent=4)
 
         # Enviar al canal de texto creado la contraseña, mencionando al creaodr del equipo.
-        await text_channel.send(f"Equipo creado por **{interaction.user.mention}**.\nUtiliza la contraseña **{password_base}** para invitar a más miembros.")
+        await text_channel.send(
+            f"Equipo creado por **{interaction.user.mention}**.\nUtiliza la contraseña **{password_base}** para invitar a más miembros."
+        )
         for member in members_array:
             if member.id != interaction.user.id:
                 await text_channel.send(f"{member.mention} se ha unido al equipo.")
