@@ -87,3 +87,5 @@ async def delete_team(interaction: discord.Interaction):
     except discord.Forbidden:
         await interaction.user.send(f"Equipo {team_name} eliminado con éxito.")
         await log_command(interaction, f"delete_team command by {interaction.user} succeeded (forbidden response): deleted team {team_name}")
+    except discord.errors.NotFound:
+        await log_command(interaction, f"delete_team command by {interaction.user} succeeded. However, the response message was not found.")

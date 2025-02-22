@@ -32,6 +32,7 @@ from triggers import command_error_handler
 # Variables globales
 load_dotenv(getDotenv())
 # Generales
+GUILD_ID = int(os.getenv("GUILD_ID"))
 CREATOR_ID = int(os.getenv("CREATOR_ID"))
 VERSION = str(os.getenv("VERSION"))
 COMMAND = read_commands()
@@ -42,6 +43,7 @@ Color = discord.Color.orange()
 
 # Bot
 TOKEN = str(os.getenv("TOKEN"))
+GUILD = discord.Object(id=GUILD_ID)
 bot = commands.Bot(
     command_prefix="", intents=INTENTS
 )  # Prefijo de los comandos del bot, en desuso
@@ -61,7 +63,7 @@ class abot(discord.Client):
 
     # Mensaje de inicio
     async def on_ready(self):
-        await tree.sync(guild=None)
+        await tree.sync(guild=GUILD)
         print("Bot conectado y listo para usar")
         print(
             f"Enlace de invitación: https://discord.com/api/oauth2/authorize?client_id={bot.user.id}&permissions={PERMISO}&scope=bot"
@@ -98,6 +100,7 @@ async def on_member_update(before: discord.Member, after: discord.Member):
 @tree.command(
     name=COMMAND["help"]["name"],
     description=COMMAND["help"]["description"],
+    guild=GUILD
 )
 @command_error_handler
 async def help_command(interaction: discord.Interaction):
@@ -110,6 +113,7 @@ async def help_command(interaction: discord.Interaction):
 @tree.command(
     name=COMMAND["ping"]["name"],
     description=COMMAND["ping"]["description"],
+    guild=GUILD
 )
 @command_error_handler
 async def ping_command(interaction: discord.Interaction):
@@ -122,6 +126,7 @@ async def ping_command(interaction: discord.Interaction):
 @tree.command(
     name=COMMAND["uptime"]["name"],
     description=COMMAND["uptime"]["description"],
+    guild=GUILD
 )
 @command_error_handler
 async def uptime_command(interaction: discord.Interaction):
@@ -134,6 +139,7 @@ async def uptime_command(interaction: discord.Interaction):
 @tree.command(
     name=COMMAND["createTeam"]["name"],
     description=COMMAND["createTeam"]["description"],
+    guild=GUILD
 )
 @command_error_handler
 async def createteam_command(
@@ -163,6 +169,7 @@ async def createteam_command(
 @tree.command(
     name=COMMAND["joinTeam"]["name"],
     description=COMMAND["joinTeam"]["description"],
+    guild=GUILD
 )
 @command_error_handler
 async def join_team_command(interaction: discord.Interaction):
@@ -175,6 +182,7 @@ async def join_team_command(interaction: discord.Interaction):
 @tree.command(
     name=COMMAND["deleteTeam"]["name"],
     description=COMMAND["deleteTeam"]["description"],
+    guild=GUILD
 )
 @command_error_handler
 async def delete_team_command(interaction: discord.Interaction):
@@ -187,6 +195,7 @@ async def delete_team_command(interaction: discord.Interaction):
 @tree.command(
     name=COMMAND["leaveTeam"]["name"],
     description=COMMAND["leaveTeam"]["description"],
+    guild=GUILD
 )
 @command_error_handler
 async def leave_team_command(interaction: discord.Interaction):
@@ -197,6 +206,7 @@ async def leave_team_command(interaction: discord.Interaction):
 @tree.command(
     name=COMMAND["clear"]["name"],
     description=COMMAND["clear"]["description"],
+    guild=GUILD
 )
 @command_error_handler
 async def clear_command(interaction: discord.Interaction, amount: int = 5):
