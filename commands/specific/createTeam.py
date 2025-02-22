@@ -91,7 +91,7 @@ async def create_team(
             "members": [
                 {"id": str(member.id), "name": member.name} for member in members_array
             ],
-            password: password
+            "password": password
         }
 
         print("Saving JSON")
