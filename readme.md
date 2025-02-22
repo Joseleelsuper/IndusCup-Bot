@@ -31,4 +31,3 @@ Si quieres contribuir al proyecto, puedes hacer un fork del repositorio y hacer 
 
 ## Licencia
 Este proyecto está bajo la licencia GNU Affero General Public License v3.0. Para más información, ver el fichero [LICENSE](LICENSE).
-```
