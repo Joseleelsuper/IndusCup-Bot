@@ -1,11 +1,24 @@
 from pathlib import Path
-from discord import Interaction
-from discord import Embed
+from discord import Interaction, Embed
 from discord.ui import Select, View
 import os
 import discord
 import bcrypt
 import json
+
+
+async def log_command(interaction: Interaction, message: str):
+    try:
+        root_path = Path(__file__).resolve().parent.parent.parent
+        util_file = os.path.join(root_path, "db", "util", "log_channel.json")
+        with open(util_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        log_channel_id = int(data["log_channel"])
+        log_channel = interaction.guild.get_channel(log_channel_id)
+        if log_channel:
+            await log_channel.send(message)
+    except Exception:
+        pass
 
 
 async def join_team(interaction: Interaction):
@@ -29,6 +42,7 @@ async def join_team(interaction: Interaction):
                 "Ya perteneces a un equipo. No puedes unirte a otro.",
                 ephemeral=True,
             )
+            await log_command(interaction, f"join_team command by {interaction.user} failed: already in a team")
             return
 
     embed = Embed(
@@ -38,6 +52,7 @@ async def join_team(interaction: Interaction):
     view = await create_select_menu(interaction)
 
     await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+    await log_command(interaction, f"join_team command by {interaction.user} initiated")
 
 
 async def create_select_menu(interaction: Interaction):
@@ -51,6 +66,7 @@ async def create_select_menu(interaction: Interaction):
 
     if not team_names:
         interaction.followup.send("No hay equipos creados.", ephemeral=True)
+        await log_command(interaction, f"join_team command by {interaction.user} failed: no teams created")
         raise ValueError("No hay equipos creados.")
 
     # Create Select options from team names
@@ -108,10 +124,12 @@ async def create_select_menu(interaction: Interaction):
                     team_text_channel: discord.TextChannel = discord.utils.get(team_category.text_channels, name="general")
                     await team_text_channel.send(f"{interaction.user.mention} se ha unido al equipo.")
 
+                    await log_command(interaction, f"join_team command by {interaction.user} succeeded: joined team {selected_team}")
                 else:
                     await interaction.response.send_message(
                         "Clave incorrecta. Inténtalo de nuevo.", ephemeral=True
                     )
+                    await log_command(interaction, f"join_team command by {interaction.user} failed: incorrect password for team {selected_team}")
 
         # Show the modal to the user
         await interaction.response.send_modal(PasswordModal())

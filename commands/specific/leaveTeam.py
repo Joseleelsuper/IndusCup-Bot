@@ -3,6 +3,18 @@ import json
 import discord
 from pathlib import Path
 
+async def log_command(interaction, message: str):
+    try:
+        root_path = Path(__file__).resolve().parent.parent.parent
+        util_file = os.path.join(root_path, "db", "util", "log_channel.json")
+        with open(util_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        log_channel_id = int(data["log_channel"])
+        log_channel = interaction.guild.get_channel(log_channel_id)
+        if log_channel:
+            await log_channel.send(message)
+    except Exception:
+        pass
 
 async def leave_team(interaction: discord.Interaction):
     """Abandonar un equipo.
@@ -18,6 +30,7 @@ async def leave_team(interaction: discord.Interaction):
         await interaction.response.send_message(
             "No perteneces a ningún equipo.", ephemeral=True
         )
+        await log_command(interaction, f"leave_team command by {interaction.user} failed: not in any team")
         return
 
     team_name = team_role.name[len("Team_") :]
@@ -33,6 +46,7 @@ async def leave_team(interaction: discord.Interaction):
         await interaction.response.send_message(
             "El equipo no existe en la base de datos.", ephemeral=True
         )
+        await log_command(interaction, f"leave_team command by {interaction.user} failed: team file for {team_name} not found")
         return
 
     # Eliminar al usuario de la lista de miembros
@@ -42,6 +56,7 @@ async def leave_team(interaction: discord.Interaction):
         await interaction.response.send_message(
             "No formas parte de este equipo.", ephemeral=True
         )
+        await log_command(interaction, f"leave_team command by {interaction.user} failed: user not in members for team {team_name}")
         return
 
     guild = interaction.guild
@@ -69,6 +84,7 @@ async def leave_team(interaction: discord.Interaction):
             f"Has abandonado el equipo {team_name}. Al no quedar miembros, el equipo ha sido eliminado.",
             ephemeral=True,
         )
+        await log_command(interaction, f"leave_team command by {interaction.user} succeeded: left and deleted team {team_name}")
     else:
         team_data["members"] = new_members
 
@@ -98,3 +114,4 @@ async def leave_team(interaction: discord.Interaction):
         await interaction.response.send_message(
             f"Has abandonado el equipo {team_name}.", ephemeral=True
         )
+        await log_command(interaction, f"leave_team command by {interaction.user} succeeded: left team {team_name}")
