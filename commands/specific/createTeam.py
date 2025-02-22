@@ -78,6 +78,10 @@ async def create_team(
         for member in members_array:
             await member.add_roles(role)
 
+        # Crear una cotraseña aleatoria de 8 carácteres mayus, minus numeros y especiales.
+        password_base = os.urandom(8).hex()
+        password = password_base.encode('utf-8').hex()
+
         print("Saving team data")
         # Preparar datos del equipo en formato JSON
         team_data = {
@@ -86,6 +90,7 @@ async def create_team(
             "members": [
                 {"id": str(member.id), "name": member.name} for member in members_array
             ],
+            password: password
         }
 
         print("Saving JSON")
@@ -96,6 +101,9 @@ async def create_team(
         file_path = os.path.join(file_dir, f"{team_name.replace(' ', '_')}.json")
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(team_data, f, ensure_ascii=False, indent=4)
+
+        # Enviar al canal de texto creado la contraseña, mencionando al creaodr del equipo.
+        await text_channel.send(f"Equipo creado por **{interaction.user.mention}**.\nUtiliza la contraseña **{password}** para invitar a más miembros.")
 
         # Responder al usuario
         await interaction.followup.send(
@@ -110,3 +118,6 @@ async def create_team(
             await text_channel.delete()
         if voice_channel:
             await voice_channel.delete()
+    finally:
+        del password_base
+        del password
