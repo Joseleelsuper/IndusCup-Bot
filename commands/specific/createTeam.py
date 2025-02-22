@@ -4,6 +4,7 @@ import discord
 from discord import Interaction, Member
 from pathlib import Path
 import uuid
+import bcrypt
 
 
 async def create_team(
@@ -78,9 +79,9 @@ async def create_team(
         for member in members_array:
             await member.add_roles(role)
 
-        # Crear una cotraseña aleatoria de 8 carácteres mayus, minus numeros y especiales.
+        # Crear una contraseña aleatoria de 8 caracteres mayúsculas, minúsculas, números y especiales.
         password_base = os.urandom(8).hex()
-        password = password_base.encode('utf-8').hex()
+        password = bcrypt.hashpw(password_base.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
         print("Saving team data")
         # Preparar datos del equipo en formato JSON
@@ -103,7 +104,7 @@ async def create_team(
             json.dump(team_data, f, ensure_ascii=False, indent=4)
 
         # Enviar al canal de texto creado la contraseña, mencionando al creaodr del equipo.
-        await text_channel.send(f"Equipo creado por **{interaction.user.mention}**.\nUtiliza la contraseña **{password}** para invitar a más miembros.")
+        await text_channel.send(f"Equipo creado por **{interaction.user.mention}**.\nUtiliza la contraseña **{password_base}** para invitar a más miembros.")
 
         # Responder al usuario
         await interaction.followup.send(
