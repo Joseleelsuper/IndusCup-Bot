@@ -9,5 +9,6 @@ def read_commands() -> dict:
         dict: Comandos del archivo commands.json
     """
     with open(getCommands(), "r") as f:
-        commands = json.load(f)
+        data = json.load(f)
+        commands = data.get("data", {})
     return commands
