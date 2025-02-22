@@ -25,6 +25,7 @@ from commands.events import member_join
 from commands.functions import getDotenv, read_commands
 from commands.other import help
 from commands.specific import create_team
+from commands.specific.joinTeam import join_team
 from commands.util import ping, uptime
 
 from triggers import command_error_handler
@@ -32,13 +33,11 @@ from triggers import command_error_handler
 # Variables globales
 load_dotenv(getDotenv())
 # Generales
-GUILD_ID = int(os.getenv("GUILD_ID"))
 CREATOR_ID = int(os.getenv("CREATOR_ID"))
 VERSION = str(os.getenv("VERSION"))
 COMMAND = read_commands()
 
 # Discord
-GUILD = discord.Object(id=GUILD_ID)
 INTENTS = discord.Intents.all()
 Color = discord.Color.orange()
 
@@ -144,6 +143,18 @@ async def createteam_command(
     members_array = list(set([member for member in [interaction.user, member2, member3, member4, member5] if member is not None]))
     await interaction.response.defer(ephemeral=True)
     await create_team(interaction, team_name, members_array)
+
+###################################################################
+
+@tree.command(
+    name=COMMAND["joinTeam"]["name"],
+    description=COMMAND["joinTeam"]["description"],
+)
+@command_error_handler
+async def join_team_command(
+    interaction: discord.Interaction
+):
+    await join_team(interaction)
 
 
 ###################################################################

@@ -105,6 +105,9 @@ async def create_team(
 
         # Enviar al canal de texto creado la contraseña, mencionando al creaodr del equipo.
         await text_channel.send(f"Equipo creado por **{interaction.user.mention}**.\nUtiliza la contraseña **{password_base}** para invitar a más miembros.")
+        for member in members_array:
+            if member.id != interaction.user.id:
+                await text_channel.send(f"{member.mention} se ha unido al equipo.")
 
         # Responder al usuario
         await interaction.followup.send(
