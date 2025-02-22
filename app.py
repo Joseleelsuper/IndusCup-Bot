@@ -21,12 +21,11 @@ from discord import app_commands
 from discord.ext import commands
 
 # Comandos
-from commands.events import member_join
+from commands.events import member_join, member_update
 from commands.functions import getDotenv, read_commands
 from commands.other import help
-from commands.specific import create_team
-from commands.specific.joinTeam import join_team
-from commands.util import ping, uptime
+from commands.specific import create_team, join_team, delete_team, leave_team
+from commands.util import ping, uptime, clear
 
 from triggers import command_error_handler
 
@@ -82,6 +81,11 @@ tree = app_commands.CommandTree(bot)
 @bot.event
 async def on_member_join(member: discord.Member):
     await member_join(member)
+
+
+@bot.event
+async def on_member_update(before: discord.Member, after: discord.Member):
+    await member_update(before, after)
 
 
 ###################################################################
@@ -140,21 +144,63 @@ async def createteam_command(
     member4: discord.Member = None,
     member5: discord.Member = None,
 ):
-    members_array = list(set([member for member in [interaction.user, member2, member3, member4, member5] if member is not None]))
+    members_array = list(
+        set(
+            [
+                member
+                for member in [interaction.user, member2, member3, member4, member5]
+                if member is not None
+            ]
+        )
+    )
     await interaction.response.defer(ephemeral=True)
     await create_team(interaction, team_name, members_array)
 
+
 ###################################################################
+
 
 @tree.command(
     name=COMMAND["joinTeam"]["name"],
     description=COMMAND["joinTeam"]["description"],
 )
 @command_error_handler
-async def join_team_command(
-    interaction: discord.Interaction
-):
+async def join_team_command(interaction: discord.Interaction):
     await join_team(interaction)
+
+
+###################################################################
+
+
+@tree.command(
+    name=COMMAND["deleteTeam"]["name"],
+    description=COMMAND["deleteTeam"]["description"],
+)
+@command_error_handler
+async def delete_team_command(interaction: discord.Interaction):
+    await delete_team(interaction)
+
+
+###################################################################
+
+
+@tree.command(
+    name=COMMAND["leaveTeam"]["name"],
+    description=COMMAND["leaveTeam"]["description"],
+)
+@command_error_handler
+async def leave_team_command(interaction: discord.Interaction):
+    await leave_team(interaction)
+
+###################################################################
+
+@tree.command(
+    name=COMMAND["clear"]["name"],
+    description=COMMAND["clear"]["description"],
+)
+@command_error_handler
+async def clear_command(interaction: discord.Interaction, amount: int = 5):
+    await clear(interaction, amount)
 
 
 ###################################################################
