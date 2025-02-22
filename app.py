@@ -10,10 +10,10 @@
 
 # Librerías
 # Generales
+import os
 import asyncio
 from datetime import datetime
 from dotenv import load_dotenv
-import os
 
 # Discord
 import discord
@@ -131,6 +131,8 @@ async def uptime_command(interaction):
 ###################################################################
 ###################################################################
 ###################################################################
+
+
 def main():
     global bot_start_time
     bot_start_time = datetime.now()

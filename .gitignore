@@ -1,3 +1,5 @@
 /.env
 /.venv
 /db
+/Documentacion.docx
+**/__pycache__/
