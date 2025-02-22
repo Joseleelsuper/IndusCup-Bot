@@ -21,12 +21,12 @@ def command_error_handler(func: callable) -> callable:
             await func(*args, **kwargs)
         except Exception as e:
             traceback.print_exc()
-            if interaction.response.is_done():
-                await interaction.followup.send(
+            try:
+                await interaction.response.send_message(
                     f"Error al ejecutar el comando.\n\n```{str(e)}```", ephemeral=True
                 )
-            else:
-                await interaction.response.send_message(
+            except Exception:
+                await interaction.followup.send(
                     f"Error al ejecutar el comando.\n\n```{str(e)}```", ephemeral=True
                 )
         finally:
