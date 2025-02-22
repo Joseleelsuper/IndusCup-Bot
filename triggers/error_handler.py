@@ -1,3 +1,5 @@
+import functools
+from .check import check
 import traceback
 from discord import Interaction
 
@@ -11,10 +13,23 @@ def command_error_handler(func: callable) -> callable:
     Returns:
         callable: Función que maneja los errores.
     """
-    async def wrapper(interaction: Interaction):
+
+    @functools.wraps(func)
+    async def wrapper(*args, **kwargs):
+        interaction: Interaction = args[0]
         try:
-            await func(interaction)
+            await func(*args, **kwargs)
         except Exception as e:
             traceback.print_exc()
-            await interaction.response.send_message(f"Error: {str(e)}", ephemeral=True)
+            if interaction.response.is_done():
+                await interaction.followup.send(
+                    f"Error al ejecutar el comando.\n\n```{str(e)}```", ephemeral=True
+                )
+            else:
+                await interaction.response.send_message(
+                    f"Error al ejecutar el comando.\n\n```{str(e)}```", ephemeral=True
+                )
+        finally:
+            await check(interaction)
+
     return wrapper
