@@ -56,8 +56,8 @@ async def create_team(
             raise Exception(f"Ya existe un rol con el nombre {team_name}")
         # Comprobar que el usuario no pertenece a un equipo
         for member in members_array:
-            for role in member.roles:
-                if role.name.startswith("Team_"):
+            for rol in member.roles:
+                if rol.name.startswith("Team_"):
                     await interaction.followup.send(
                         f"El usuario {member.name} ya pertenece a un equipo",
                         ephemeral=True,
@@ -68,7 +68,11 @@ async def create_team(
                     )
 
         # Crear rol con permisos para ver canales
-        role = await guild.create_role(name="Team_" + team_name)
+        role = await guild.create_role(
+            name="Team_" + team_name, 
+            colour=discord.Colour.random(),
+            hoist=True  # Esto hace que el rol aparezca separado en la lista de miembros
+        )
         overwrites = {
             guild.default_role: discord.PermissionOverwrite(view_channel=False),
             role: discord.PermissionOverwrite(view_channel=True),
@@ -79,10 +83,10 @@ async def create_team(
             "Team_" + team_name, overwrites=overwrites
         )
         text_channel = await guild.create_text_channel(
-            "general", category=category, overwrites=overwrites
+            "🗨️general", category=category, overwrites=overwrites
         )
         voice_channel = await guild.create_voice_channel(
-            "Voz", category=category, overwrites=overwrites, user_limit=6, bitrate=96000
+            "🔊Voz", category=category, overwrites=overwrites, user_limit=6, bitrate=96000
         )
 
         # Asignar el rol a los miembros
@@ -128,6 +132,7 @@ async def create_team(
         await log_command(interaction, f"create_team command by {interaction.user} succeeded: created team {team_name}")
     except Exception:
         if role:
+            print(role)
             await role.delete()
         if category:
             await category.delete()
